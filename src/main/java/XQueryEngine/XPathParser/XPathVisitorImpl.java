@@ -104,26 +104,26 @@ public class XPathVisitorImpl extends XPathBaseVisitor<ArrayList<Node>> {
 
     @Override
     public ArrayList<Node> visitWildcard(XPathParser.WildcardContext ctx) { // rp -> *
-        ArrayList<Node> ret = new ArrayList<>();
+        LinkedHashSet<Node> ret = new LinkedHashSet<>();
         for (Node node : this.curNodes) {
             NodeList childNodes = node.getChildNodes();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 ret.add(childNodes.item(i));
             }
         }
-        return ret;
+        return new ArrayList<>(ret);
     }
 
     @Override
     public ArrayList<Node> visitParentNode(XPathParser.ParentNodeContext ctx) { // rp -> ..
-        ArrayList<Node> ret = new ArrayList<>();
+        LinkedHashSet<Node> ret = new LinkedHashSet<>();
         for (Node node : this.curNodes) {
             Node parent = node.getParentNode();
             if (parent != null) {
                 ret.add(parent);
             }
         }
-        return ret;
+        return new ArrayList<>(ret);
     }
 
     @Override
@@ -151,7 +151,9 @@ public class XPathVisitorImpl extends XPathBaseVisitor<ArrayList<Node>> {
 
     @Override
     public ArrayList<Node> visitRpConcatenate(XPathParser.RpConcatenateContext ctx) { // rp -> rp1,rp2
+        ArrayList<Node> curNodesCopy = new ArrayList<>(this.curNodes);
         ArrayList<Node> rp1 = this.visit(ctx.rp(0));
+        this.curNodes = curNodesCopy;
         ArrayList<Node> rp2 = this.visit(ctx.rp(1));
         rp1.addAll(rp2);
         return rp1;

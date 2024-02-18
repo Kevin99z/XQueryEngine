@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 mkdir -p output
-for i in {1..5} ; do
- query=`cat src/test/queries/q${i}`
- basex -o output/ref${i}.rtf -q "${query}"
- java -jar ./target/XQueryEngine-1.0-SNAPSHOT-jar-with-dependencies.jar src/test/queries/q${i} output/result${i}.rtf
- output=`sed '1d;$d' output/result${i}.rtf`
-  ref=`cat output/ref${i}.rtf`
+for i in {11,12} ; do
+ file=src/test/queries/q${i}.xml
+ query=`cat ${file}`
+ basex -o output/ref${i}.xml -q "${query}"
+ java -jar ./target/XQueryEngine-1.0-SNAPSHOT-jar-with-dependencies.jar ${file} output/result${i}.xml
+ output=`sed '1d;$d' output/result${i}.xml`
+  ref=`cat output/ref${i}.xml`
   if [ "$output" == "$ref" ]; then
     echo "Test $i passed"
   else

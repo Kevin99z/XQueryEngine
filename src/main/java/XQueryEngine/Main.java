@@ -1,7 +1,7 @@
 package XQueryEngine;
-import XQueryEngine.XPathParser.XPathLexer;
-import XQueryEngine.XPathParser.XPathParser;
-import XQueryEngine.XPathParser.XPathVisitorImpl;
+import XQueryEngine.XQueryParser.XQueryLexer;
+import XQueryEngine.XQueryParser.XQueryParser;
+import XQueryEngine.XQueryParser.XQueryVisitorImpl;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -32,11 +32,14 @@ public class Main {
     }
     public static ArrayList<Node> executeQuery(String query) throws IOException {
         CharStream lexerInput = CharStreams.fromFileName(query);
-        XPathLexer lexer = new XPathLexer(lexerInput);
-        XPathParser parser = new XPathParser(new CommonTokenStream(lexer));
-        XPathParser.ApContext ap = parser.ap();
-        XPathVisitorImpl visitor = new XPathVisitorImpl(true);
-        ArrayList<Node> nodes = visitor.visit(ap);
+        XQueryLexer lexer = new XQueryLexer(lexerInput);
+        XQueryParser parser = new XQueryParser(new CommonTokenStream(lexer));
+        XQueryParser.XqContext xq = parser.xq();
+        XQueryVisitorImpl visitor = new XQueryVisitorImpl(true);
+        ArrayList<Node> nodes = visitor.visit(xq);
+        if (nodes == null) {
+            return new ArrayList<>();
+        }
         // sort nodes by document order
         nodes.sort((n1, n2) -> {
             int c = n1.compareDocumentPosition(n2);

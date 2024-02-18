@@ -31,7 +31,7 @@ f: rp #FilterRp
   ;
 
 // Lexer rules
-DOC: 'doc';
+DOC: 'doc' | 'document';
 TEXT: 'text()';
 EQ: 'eq';
 IS: 'is';

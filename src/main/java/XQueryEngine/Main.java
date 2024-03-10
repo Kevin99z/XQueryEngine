@@ -2,6 +2,9 @@ package XQueryEngine;
 import XQueryEngine.XQueryParser.XQueryLexer;
 import XQueryEngine.XQueryParser.XQueryParser;
 import XQueryEngine.XQueryParser.XQueryVisitorImpl;
+import XQueryEngine.XQueryRewriter.XQuerySubLexer;
+import XQueryEngine.XQueryRewriter.XQuerySubParser;
+import XQueryEngine.XQueryRewriter.XQueryRewriterImpl;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -22,13 +25,27 @@ import org.w3c.dom.Node;
 public class Main {
     public static void main(String[] args) {
         String inputFile = args[0], outputFile = args[1];
-
+        String rewriteFile = "rewrite/" + outputFile.substring(outputFile.lastIndexOf('/') + 1);
         try {
-            ArrayList<Node> nodes = executeQuery(inputFile);
-            writeNodesToXml(nodes, outputFile);
+            String rewrittenQuery = rewriteQuery(inputFile);
+            try (FileWriter fileWriter = new FileWriter(rewriteFile)) {
+                fileWriter.write(rewrittenQuery);
+            }
+            System.out.println("Rewritten query file created successfully at " + rewriteFile);
+//            ArrayList<Node> nodes = executeQuery(inputFile);
+//            writeNodesToXml(nodes, outputFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String rewriteQuery(String inputFile) throws IOException{
+        CharStream xqueryInput = CharStreams.fromFileName(inputFile);
+        XQuerySubLexer lexer = new XQuerySubLexer(xqueryInput);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        XQuerySubParser parser = new XQuerySubParser(tokens);
+        XQueryRewriterImpl visitor = new XQueryRewriterImpl();
+        return visitor.visit(parser.xq());
     }
     public static ArrayList<Node> executeQuery(String query) throws IOException {
         CharStream lexerInput = CharStreams.fromFileName(query);

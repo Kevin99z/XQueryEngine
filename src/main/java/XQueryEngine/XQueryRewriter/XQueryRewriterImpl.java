@@ -47,9 +47,15 @@ public class XQueryRewriterImpl extends XQuerySubBaseVisitor<String> {
         sb.append("for ");
         ArrayList<String> localVars = new ArrayList<>();
         ArrayList<String> conds = new ArrayList<>();
-        for (String var : vars) {
+        for (int i = 0; i < vars.size(); i++) {
+            String var = vars.get(i);
             localVars.add(var);
-            sb.append(var).append(" in ").append(paths.get(var)).append(",\n");
+            sb.append(var).append(" in ").append(paths.get(var));
+            if (i < vars.size() - 1) {
+                sb.append(",\n");
+            } else {
+                sb.append("\n");
+            }
             if (eqOthers.containsKey(var)) {
                 conds.add(eqOthers.get(var));
             }
@@ -107,7 +113,11 @@ public class XQueryRewriterImpl extends XQuerySubBaseVisitor<String> {
                         }
                     }
                     sb.append("[").append(String.join(", ", leftEqs)).append("], [").append(String.join(", ", rightEqs)).append("]\n");
-                    sb.append(")\n");
+                    sb.append(")");
+                    if (i < compNum - 1) {
+                        sb.append(",");
+                    }
+                    sb.append("\n");
                 }
             }
             sb.append("return ").append(this.visit(ctx.return_()));
@@ -131,7 +141,7 @@ public class XQueryRewriterImpl extends XQuerySubBaseVisitor<String> {
         String path = ctx.path().getText();
         if (path.startsWith("$")) {
             String var = ctx.path().getChild(0).getText();
-            return "$tuple/" + var + "/*" + path.substring(var.length());
+            return "$tuple/" + var.substring(1) + "/*" + path.substring(var.length());
         } else {
             return ctx.path().getText();
         }

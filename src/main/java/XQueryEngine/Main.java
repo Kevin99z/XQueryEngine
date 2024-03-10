@@ -1,7 +1,7 @@
 package XQueryEngine;
-import XQueryEngine.XQueryParser.XQueryLexer;
-import XQueryEngine.XQueryParser.XQueryParser;
-import XQueryEngine.XQueryParser.XQueryVisitorImpl;
+import XQueryEngine.XQueryM3Parser.XQueryLexer;
+import XQueryEngine.XQueryM3Parser.XQueryM3Parser;
+import XQueryEngine.XQueryM3Parser.XQueryM3VisitorImpl;
 import XQueryEngine.XQueryRewriter.XQuerySubLexer;
 import XQueryEngine.XQueryRewriter.XQuerySubParser;
 import XQueryEngine.XQueryRewriter.XQueryRewriterImpl;
@@ -25,15 +25,15 @@ import org.w3c.dom.Node;
 public class Main {
     public static void main(String[] args) {
         String inputFile = args[0], outputFile = args[1];
-        String rewriteFile = "rewrite/" + outputFile.substring(outputFile.lastIndexOf('/') + 1);
+        String rewriteFile = "rewrite/" + inputFile.substring(inputFile.lastIndexOf('/') + 1);
         try {
             String rewrittenQuery = rewriteQuery(inputFile);
             try (FileWriter fileWriter = new FileWriter(rewriteFile)) {
                 fileWriter.write(rewrittenQuery);
             }
             System.out.println("Rewritten query file created successfully at " + rewriteFile);
-//            ArrayList<Node> nodes = executeQuery(inputFile);
-//            writeNodesToXml(nodes, outputFile);
+            ArrayList<Node> nodes = executeQuery(rewriteFile);
+            writeNodesToXml(nodes, outputFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,9 +50,9 @@ public class Main {
     public static ArrayList<Node> executeQuery(String query) throws IOException {
         CharStream lexerInput = CharStreams.fromFileName(query);
         XQueryLexer lexer = new XQueryLexer(lexerInput);
-        XQueryParser parser = new XQueryParser(new CommonTokenStream(lexer));
-        XQueryParser.XqContext xq = parser.xq();
-        XQueryVisitorImpl visitor = new XQueryVisitorImpl(true);
+        XQueryM3Parser parser = new XQueryM3Parser(new CommonTokenStream(lexer));
+        XQueryM3Parser.XqContext xq = parser.xq();
+        XQueryM3VisitorImpl visitor = new XQueryM3VisitorImpl(true);
         ArrayList<Node> nodes = visitor.visit(xq);
         if (nodes == null) {
             return new ArrayList<>();
